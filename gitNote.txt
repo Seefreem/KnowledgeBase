@@ -122,6 +122,9 @@ git merge branchB
 在合并改动之前，你可以使用如下命令预览差异：
 git diff <source_branch> <target_branch>
 
+# 终止合并；取消合并：
+git merge --abort
+
 换掉本地改动：
 git checkout -- <filename>
 此命令会使用 HEAD 中的最新内容替换掉你的工作目录中的文件。
@@ -191,7 +194,10 @@ index默认为0
 git stash clear
 
 ----------------------提交历史/log--------------------
-
+  查看提交历史：
+  git log [-number]
+  number 是指查看最近的几个提交
+  
 
 
 
