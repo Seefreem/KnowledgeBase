@@ -1,0 +1,6 @@
+// the configured options and settings for Tutorial
+// TODO 10: Define Tutorial_VERSION_MAJOR and Tutorial_VERSION_MINOR
+// 头文件模板，预定义一些变量，其中的值通过 config_file 指定
+//  config_file 只修改两个 @@ 中间的内容，类似于宏替换
+#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@

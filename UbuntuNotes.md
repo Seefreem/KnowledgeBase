@@ -122,6 +122,8 @@ This covers a wide assortment of quick references for the terminal/command-line.
 - [Troubleshooting](#troubleshooting)
     - [Ubuntu Infinite Login](#ubuntu-infinite-login)
 - [Linux Facts](#linux-facts)
+- [Pythons](#pythons)
+    - [pip installing packages](#pip-installing-packages)
 
 # Common Commands
 ***
@@ -1596,3 +1598,18 @@ Next, Login as your user who must be able to run `sudo`.
       - **CentOS** forked from RHEL (Community Edition of RHEL)
   - **Gentoo**
 - ..And many others. Debian -> Ubuntu has been the most popular.
+
+# pythons
+
+### pip installing packages
+pip 的安装路径可能在下面的几个目录中：
+1 /home/seelur/.local/lib/python3.8/site-packages
+2 /usr/lib/pythonx
+
+查看pip的安装路径的办法：
+1 输入命令pip list，在输出列表的顶部可以看到一个安装路径。
+2 在.py文件中import的地方，用ctrl + 鼠标左键的方式打开源文件，在scode的顶部能看到文件所在路径。
+
+
+
+

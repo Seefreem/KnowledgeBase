@@ -1,0 +1,12 @@
+// the configured options and settings for Tutorial
+#define Tutorial_VERSION_MAJOR @Tutorial_VERSION_MAJOR@
+#define Tutorial_VERSION_MINOR @Tutorial_VERSION_MINOR@
+
+// TODO 13: use cmakedefine to define USE_MYMATH
+// #define USE_MYMATH @USE_MYMATH@
+#cmakedefine USE_MYMATH
+// 如果在CMakeLists.txt文件中 USE_MYMATH 的值为真，那么这句代码就会被翻译成：
+// #define USE_MYMATH ...
+// 否则则会被翻译成：
+// /*#define USE_MYMATH ...*/
+
