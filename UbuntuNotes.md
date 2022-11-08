@@ -124,6 +124,8 @@ This covers a wide assortment of quick references for the terminal/command-line.
 - [Linux Facts](#linux-facts)
 - [Pythons](#pythons)
     - [pip installing packages](#pip-installing-packages)
+- [deeplearning](#deep-learning) 
+    - [cuda](#cuda)
 
 # Common Commands
 ***
@@ -1188,18 +1190,32 @@ git commit -m "Starting with one file"
 git push origin master
 ```
 ### Add or Remove Files
+use 'git add file.txt' to add a file into INDEX
+use 'git reset file.txt' to move a file out of INDEX
+
 ```
-git add file.txt
+git add file.txt 
 git rm file.txt
+```
+将某个文件从暂存区中移除：
+```
+git reset file.txt
+```
+
+将所有文件从暂存区中移除：
+```
+git reset 
 ```
 
 ### Ignoring files
 Create a `.gitignore` file, and place something like this in it:
 ```
-.tmp
-.py[co]
-.cache
-.DS_Store
+*.tmp       # 
+*.py        # 忽略后缀为 py 的文件
+*.cache     #
+/tmp        # 忽略文件夹
+/*/build    # 忽略所有子目录下的build目录
+/*/*.pt     # 忽略所有子目录下以.pt为后缀的文件
 ```
 
 ### Create a Branch
@@ -1610,6 +1626,28 @@ pip 的安装路径可能在下面的几个目录中：
 1 输入命令pip list，在输出列表的顶部可以看到一个安装路径。
 2 在.py文件中import的地方，用ctrl + 鼠标左键的方式打开源文件，在scode的顶部能看到文件所在路径。
 
+# deep learning
 
+### cuda
+What is CUDA?
+CUDA is a "parallel computing platform and programming model" invented by NVIDIA. 
+It enables dramatic increases in computing performance by harnessing 
+the power of the graphics processing unit (GPU). 
 
+Install cuda:
+'''
+https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#verify-you-have-cuda-enabled-system
+'''
+
+Check if installed cuda & check the version of cuda:
+reference: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#verify-driver
+
+'''
+cat /proc/driver/nvidia/version
+'''
+
+OR use command below to see if the NVIDIA Persistence Daemon is active:
+'''
+systemctl status nvidia-persistenced
+'''
 
