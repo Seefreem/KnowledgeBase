@@ -35,6 +35,10 @@ git config --global user.name "name"
 git config --global user.email "email"
 
 --------------------远程仓库----------------------
+创建 SSH Key 进行免密登陆：
+https://blog.csdn.net/weixin_42310154/article/details/118340458
+https://www.jianshu.com/p/dd3be8cb5b90
+
 创建远程仓库的方法：
 1 在网页端用鼠标创建
 2 命令行创建：
@@ -49,6 +53,14 @@ git push -u origin master
 git remote rm name  
 # 修改仓库名
 git remote rename old_name new_name  
+
+# 查看当前远程仓库名：
+git remote -v
+有时候添加远程仓库时填写错了仓库名，就导致无法推送代码。于是需要删除远程仓库链接，并重新添加：
+git remote remove origin
+
+git remote add origin git@github.com:Seefreem/xxx.git
+git push -u origin master
 
 # 提交本地仓库到远程仓库
 git push origin master

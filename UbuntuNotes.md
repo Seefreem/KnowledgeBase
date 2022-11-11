@@ -124,6 +124,7 @@ This covers a wide assortment of quick references for the terminal/command-line.
 - [Linux Facts](#linux-facts)
 - [Pythons](#pythons)
     - [pip installing packages](#pip-installing-packages)
+    - [vscode python interpreter](#vscode-python-interpreter)
 - [deeplearning](#deep-learning) 
     - [cuda](#cuda)
 
@@ -1625,6 +1626,22 @@ pip 的安装路径可能在下面的几个目录中：
 查看pip的安装路径的办法：
 1 输入命令pip list，在输出列表的顶部可以看到一个安装路径。
 2 在.py文件中import的地方，用ctrl + 鼠标左键的方式打开源文件，在scode的顶部能看到文件所在路径。
+
+pip换源:
+1.临时换源：
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple package_name
+2.永久还原：
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+### vscode python interpreter
+修改python解释器，先按组合键：
+```
+ctrl+shift+p 
+```
+然后输入：
+```
+python interpreter
+```
 
 # deep learning
 
