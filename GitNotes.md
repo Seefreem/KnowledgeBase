@@ -47,6 +47,7 @@ git add README.md
 git commit -m "xxx"
 # git remote 是对远程仓库的操作命令 git remote add [shortname] [url]
 git remote add origin git@github.com:Seefreem/repoName.git
+# 在github网站上创建repo，然后执行下面的命令
 git push -u origin master
 
 # 删除远程仓库
