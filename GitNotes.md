@@ -212,6 +212,29 @@ git stash clear
   number 是指查看最近的几个提交
   
 
+# trouble shooting
++++“WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!”
+据说是对方IP发生变化。
+S1：删除~/.ssh/known_hosts 文件中对应的主机IP，如果不知道是哪一个，那就直接将文件删掉。
+S2：直接使用git clone等命令，重新登录一下命令行git就可以了。
+但是可能还会出现下面的问题：
++++“The authenticity of host 'github.com (::1)' can't be established.
+    ECDSA key fingerprint is SHA256:bKJKwVyMY6vBxRWrwHipu94x3i9jSCgiU9Aq1Lqyfts.
+    Are you sure you want to continue connecting (yes/no/[fingerprint])?”
+并且就算你输入正确的github密码也会出错。
+参考下面的链接操作：
+https://blog.csdn.net/weixin_47266712/article/details/124760778
+
+操作之后，运行 ssh -T git@github.com
+还是出现问题，但是注意到末尾有一个提示：
+  Offending ECDSA key in /home/seelur/.ssh/known_hosts:1
+    remove with:
+    ssh-keygen -f "/home/seelur/.ssh/known_hosts" -R "github.com"
+  ECDSA host key for github.com has changed and you have requested strict checking.
+  Host key verification failed.
+于是执行：
+  ssh-keygen -f "/home/seelur/.ssh/known_hosts" -R "github.com"
+  ssh -T git@github.com，输入yes，链接成功！
 
 
 

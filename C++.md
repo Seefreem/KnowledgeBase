@@ -127,8 +127,9 @@ final： 在成员函数后，表示不能重写
     long long：           long long、signed long long、long long int、signed long long int
     unsigned long long：  unsigned long long int
   相关的宏：
-  #include <climits>
+  #include <climits> 
   LLONG_MIN、LLONG_MAX、ULLONG_MAX
+  注意，这些并不在std 命名空间内
 
 ==C++11 扩展的整型：
   程序员常会在代码中发现一些整型的名字，比如UINT、__int16、u64、int64_t，等等。
@@ -560,7 +561,7 @@ https://zh.cppreference.com/w/cpp/header
   对于随机访问需求多的情况，可以使用vector和deque。
   对于查找需求较多的情况，可以使用map、set等容器。
   对于交叉的需求情况，可以酌情考虑结合使用不同的容器。
-  对于朝招需求要求高的，还可以使用 unordered_map 和 unordered_set等给予hash的容器。
+  对于查找需求要求高的，还可以使用 unordered_map 和 unordered_set等给予hash的容器。
 
 ==C++11容器：
   https://zh.cppreference.com/w/cpp/header
@@ -575,17 +576,17 @@ https://www.runoob.com/w3cnote/cpp-vector-container-analysis.html
 cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
 
 ==初始化例子：
-  vector<int> vec1;    //默认初始化，vec1为空
+  vector<int> vec1;        //默认初始化，vec1为空
   vector<int> vec2(vec1);  //使用vec1初始化vec2
   vector<int> vec3(vec1.begin(),vec1.end());//使用vec1初始化vec2
   vector<int> vec4(10);    //10个值为0的元素
   vector<int> vec5(10,4);  //10个值为4的元素
-  vector<string> vec6(10,"null");    //10个值为null的元素
+  vector<string> vec6(10,"null");   //10个值为null的元素
   vector<string> vec7(10,"hello");  //10个值为hello的元素
 
 ==常用操作例子：
   vec1.push_back(100);            //添加元素
-  int size = vec1.size();         //元素个数
+  int size = vec1.size();         //元素个数， 注意是元素个数，不是数组长度
   bool isEmpty = vec1.empty();    //判断是否为空
   cout<<vec1[0]<<endl;            //取得第一个元素
   vec1.insert(vec1.end(),5,3);    //从vec1.back位置插入5个值为3的元素
@@ -594,7 +595,7 @@ cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
   cout<<(vec1==vec2)?true:false;  //判断是否相等==、！=、>=、<=...
   vector<int>::iterator iter = vec1.begin();           //获取迭代器首地址
   vector<int>::const_iterator c_iter = vec1.begin();   //获取const类型迭代器
-  vec1.clear();                   //清空元素
+  vec1.clear();                   //清空元素，size变为零
 
 ==遍历方法（四种）：
   int main() {
@@ -605,6 +606,8 @@ cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
         std::cout<< array1[i] << std::endl;
     }
     // 第二种：for-each法
+    // 注意这种方法获取到的是元素的值，因此通过这种方法去修改元素的话，是不会改变原来数组中的元素的。
+    // 要修改数组中的元素，就需要建立引用：for (auto& i : array1)
     for (auto i : array1) {
         std::cout<< i << std::endl;
     }
