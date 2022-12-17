@@ -64,13 +64,25 @@ git remote add origin git@github.com:Seefreem/xxx.git
 git push -u origin master
 
 # 提交本地仓库到远程仓库
-git push origin master
-可以把 master 换成你想要推送的任何分支。
+S1 在github 上建立一个 repository
+S2 follow the commands below：
 
-如果你还没有克隆现有仓库，并欲将你的仓库连接到某个远程服务器，
-你可以使用如下命令添加：
-git remote add origin <server>
-如此你就能够将你的改动推送到所添加的服务器上去了。——用本地仓库创建远程仓库
+## push an existing repository from the command line
+git remote add origin git@github.com:Seefreem/reviewer.git # 设置本地rep的远程rep
+git branch -M main  # 修改分支名为 main
+git push -u origin main # 将本地代码提交到远程仓库
+
+## …or create a new repository on the command line
+echo "# reviewer" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Seefreem/reviewer.git
+git push -u origin main
+
+## …or import code from another repository
+You can initialize this repository with code from a Subversion, Mercurial, or TFS project.
 
 ----------------------基本操作流程--------------------
 S1：创建仓库(repo)
