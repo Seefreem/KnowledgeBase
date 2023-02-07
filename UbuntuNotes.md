@@ -1218,7 +1218,18 @@ Create a `.gitignore` file, and place something like this in it:
 /*/build    # 忽略所有子目录下的build目录
 /*/*.pt     # 忽略所有子目录下以.pt为后缀的文件
 ```
+### 忽略已经在仓库中的文件，ignore已经追踪的文件和文件夹
+主要解决不能add文件或者目录的问题
+解决嵌套git带来的问题
+解决无法追踪某些子目录中的文件的问题
+https://zhuanlan.zhihu.com/p/139950341 
+  git rm --cached hello.txt 
+  OR
+  git rm -rf --cached vendor/crazyfd/yii2-qiniu 后面这个是目录名
 
+### .gitkeep
+gitkeep 的功能类似于占位符
+https://www.jianshu.com/p/2507dfdb35d8
 ### Create a Branch
 Branches are used like when you don't want to ruin a main branch with working code.
 
@@ -1628,7 +1639,7 @@ pip 的安装路径可能在下面的几个目录中：
 2 在.py文件中import的地方，用ctrl + 鼠标左键的方式打开源文件，在scode的顶部能看到文件所在路径。
 
 pip换源:
-1.临时换源：
+1.临时换源：清华源
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple package_name
 2.永久还原：
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
@@ -1668,3 +1679,198 @@ OR use command below to see if the NVIDIA Persistence Daemon is active:
 systemctl status nvidia-persistenced
 '''
 
+# 软链接
+ln -s source dist
+source:文件原始地址
+dist：文件想要建立链接的位置
+
+# 终端命令使用技巧
+==find命令进阶（二）：对找到的文件执行操作exec
+  对find命令的结果进行操作、执行find命令寻找的结果
+  find ~ -type f -name 'foo*' -exec ls -l '{}' ';'
+
+==将终端命令的结果存到变量中
+  Shell 命令替换是指将命令的输出结果赋值给某个变量。
+  Shell 中有两种方式可以完成命令替换，一种是反引号` `，一种是$()，使用方法如下：
+  variable=`commands`
+  variable=$(commands)
+
+# 记录进程的资源消耗
+记录进程占用的额CPU和内存资源
+
+==方法1：
+shell脚本：
+    #!/bin/bash
+    # 进程的名字
+    PROCESSES=("n_v_decision/n_v_decision" "n_local_planning/n_local_planning" )
+    # 每个进程对应的日志文件的名字，注意和PROCESSES保持一样的长度
+    LOG_FILES=("n_v_decision_process_info_log.txt" "n_local_planning_process_info_log.txt")
+    #过滤出需要的进程ID
+    PIDS=()
+    for process in ${PROCESSES[@]}
+    do
+        echo "The value is: $process"
+        PID=$(ps aux| grep $process | grep -v 'grep' | awk '{print $2;}')
+        PIDS[${#PIDS[@]}]=$PID
+    done
+    echo ${PIDS[*]}
+
+
+    ########## 将所有的日志信息放到多个文件中 ###########
+    for log_file in ${LOG_FILES[@]}
+    do
+        #删除上次的监控文件
+        if [ -f "$log_file" ];then
+            rm "$log_file"
+        fi
+        # 重新创建对应的文件
+        echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND" >> "$log_file" 
+    done
+    echo ${LOG_FILES[*]}
+
+    # 记录日志信息到文件
+    while :
+    do
+        for ((i = 0; i<${#PIDS[@]}; i++)) do
+            echo $(ps aux| grep ${PIDS[i]}| grep -v 'grep') "">> "${LOG_FILES[i]}"
+        done;
+        sleep 5
+    done
+    ########## 将所有的日志信息放到多个文件中 END ###########
+
+==方法2：
+用C++代码实现：
+    #include <iostream>
+    #include <memory> // popen, pclose, unique_ptr
+    #include <string>
+    #include <array>
+    #include <unistd.h> // getpid
+    #include <vector>
+    #include <string.h> // strtok
+
+    // 通过命令行获取资源占用情况
+    std::string GetResourceOccupationInfo() {
+        std::string command("ps -aux | grep ");
+        command += std::to_string(getpid());
+        std::array<char, 1024> buffer;
+        std::string result;
+        // 执行命令并获取返回值
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+        if (!pipe) {
+            throw std::runtime_error("popen() failed!");
+        }
+        // 读取返回值
+        if (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+            // USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+            std::vector<std::string> tokens;
+            // 用 strtok 将返回的字符串进行分割，分隔符是 ' '
+            auto item = strtok(buffer.data(), " ");
+            while (item != NULL) {
+                printf ("%s\n", item);
+                tokens.push_back(std::string(item));
+                item = strtok (NULL, " ");
+            }
+            // 添加注释信息
+            result += "PID: " + tokens[1] + 
+                      "; CPU(%): " + tokens[2] +
+                      "; MEM(%): " + tokens[3] + 
+                      "; name: " + tokens[10];
+        }
+        if(!result.empty()) {
+            return result;
+        } else
+            return "GetResourceOccupationInfo: Error";
+    }
+    
+    int main()
+    {
+        std::string result = GetResourceOccupationInfo();
+        std::cout << result;
+        return 0;
+    }
+
+==方法3：
+搜索：知乎 C++获取对应进程的cpu和内存使用情况（支持linux和windows）
+
+
+
+# 用shell脚本记录进程的资源使用情况
+  处理过程中遇到的问题是 awk '{print $2;}' 是将每行的第二列打印出来。但是打印出来的结果不是用空格作为分隔符。
+  这就导致不能直接用于命令。
+  解决办法是，当发现用echo输出 awk '{print $2;}' 的结果时，会用空格作为分隔符。
+  因此将echo的结果拿回来，对空格进行替换。
+  注意区分：ps输出的资源占用是从进程开始运行到现在的的CPU时钟占比。也就是说并不是实时的。
+  而top命令输出的CPU占比则是从上一次screen update到现在的CPU占比，换句话说就是实时性更加好。
+
+  使用top命令时，建议使用：
+  `top -n 1 -b | grep -E ${PIDS[i]}| grep -v 'grep'  >> ${LOG_FILES[i]}`
+  注意加上-b，不然输出的内容包含了格式字符，在log文件中显示为乱码。
+
+    #!/bin/bash
+    # 进程的名字，支持一个名字对应多个PID。
+    PROCESSES=("n_v_decision/n_v_decision" 
+              "n_local_planning/n_local_planning" 
+              "/usr/bin/gnome-shell")
+    # 每个进程对应的日志文件的名字，注意和PROCESSES保持一样的长度
+    LOG_FILES=("n_v_decision_process_info.log" 
+              "n_local_planning_process_info.log"
+              "gnome-shell_info.log")
+    #过滤出需要的进程ID
+    PIDS=()
+    for process in ${PROCESSES[@]}
+    do
+        echo "The value is: $process"
+        PID=$(ps aux| grep $process | grep -v 'grep' | awk '{print $2;}')
+        PIDS[${#PIDS[@]}]=$PID
+    done
+    echo ${PIDS[*]}
+    echo ${#PIDS[@]}
+
+    # 对于一个name对应多个ID的情况，需要将换行符切换为 "|"，方便grep -E 进行多关键字匹配
+    for ((i = 0; i<${#PIDS[@]}; i++)) do
+        c=`echo ${PIDS[i]}`
+        c=${c/" "/"|"}
+        PIDS[i]=${c}
+    done;
+    echo ${PIDS[*]}
+    echo ${#PIDS[@]}
+
+    ########## 将所有的日志信息放到多个文件中 ###########
+    for log_file in ${LOG_FILES[@]}
+    do
+        #删除上次的监控文件
+        if [ -f "$log_file" ];then
+            rm "$log_file"
+        fi
+        # 重新创建对应的文件
+        echo "   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND" >> "$log_file" 
+    done
+    echo ${LOG_FILES[*]}
+
+    # 记录日志信息到文件
+    while :
+    do
+        for ((i = 0; i<${#PIDS[@]}; i++)) do
+            # echo "$(ps aux| grep -E ${PIDS[i]}| grep -v 'grep') " >> "${LOG_FILES[i]}"
+            `top -n 1 -b | grep -E ${PIDS[i]}| grep -v 'grep'  >> ${LOG_FILES[i]}`
+        done;
+        sleep 5
+    done
+
+    # ########## 将所有的日志信息放到一个文件中 ###########
+    # LOG="./process_info_log.txt"
+    # #删除上次的监控文件
+    # if [ -f "$LOG" ];then
+    # rm "$LOG"
+    # fi
+    # echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND" >> "$LOG" 
+
+    # while :
+    # do
+    #     for pid in ${PIDS[@]}
+    #     do
+    #         echo $(ps aux| grep $pid| grep -v 'grep') "">> "$LOG"
+    #     done
+    #     sleep 5
+    # done
+    # ########## 将所有的日志信息放到一个文件中 END ###########

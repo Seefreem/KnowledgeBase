@@ -14,7 +14,7 @@ git remote -h
 是一个指针，指向最后一次的提交
 
 ## 注意：
-git只会管理已经track的文件。通过"git add 文件"将文件添加到项目中，
+用户名只会管理已经track的文件。通过"git add 文件"将文件添加到项目中，
 对文件进行track。
 
 ## remote 远程仓库
@@ -32,7 +32,7 @@ git config user.email
 
 修改用户名和邮箱
 git config --global user.name "name"
-git config --global user.email "email"
+git config --global user.email "2197036755@qq.com"
 
 --------------------远程仓库----------------------
 创建 SSH Key 进行免密登陆：
@@ -133,10 +133,13 @@ git checkout -f
 git checkout -b feature_x
 # 切换回主分支；切换分支：
 git checkout master
-# 再把新建的分支删掉；删除分支：
+# 再把新建的分支删掉；删除分支；删除本地分支：
 git branch -d feature_x
+# 删除远程分支：
+git push origin -d feature_x
 # 除非你将分支推送到远端仓库，不然该分支就是 不为他人所见的：
 git push origin <branch>
+
 
 # 合并分支：
 S1 切换到分支A
@@ -160,6 +163,12 @@ git checkout -- <filename>
 git pull
 以在你的工作目录中 获取（fetch） 并 合并（merge） 远端的改动。
 也就是说git pull 实现了git fetch和git merge两个操作。
+
+如果你在一个分支上执行下面的命令：
+git pull origin test3
+则git会拉取远程的test3分支，并且将test3分支和当前的本地分支进行合并。
+
+如果你只是想要更新本地的这个分支， 那么使用git pull就行。
 
 假如你想丢弃你在本地的所有改动与提交，可以到服务器上获取最新的版本历史，
 并将你本地主分支指向它：（注意，本地的所有历史都将丢失，慎用）
@@ -248,11 +257,38 @@ https://blog.csdn.net/weixin_47266712/article/details/124760778
   ssh-keygen -f "/home/seelur/.ssh/known_hosts" -R "github.com"
   ssh -T git@github.com，输入yes，链接成功！
 
+# 嵌套git
+嵌套git的情况下，上层git可能无法管理子目录下的git仓库中的文件。
+要管理子目录下的文件，就需要删除子目录下的.git，并且通过下面的命令更新上层git的缓存。
+git rm -rf --cached 子目录名
 
+--------------------gitlab----------------------------
+# transfer project
+转移项目之后，实际上是重定位到新的项目。
+此时，使用原来项目的人，如果他上传了一个他本地有，但是远程仓库没有的分分支，
+那么在远程仓库中就没办法访问他上传的分支。
 
+在上传分支的时候本地可能会给出下面的提示：
 
+remote: To create a merge request for feat/n_show, visit:
+remote:   http://10.10.10.100/decision_and_planning/jiu_zhi/-/merge_requests/new?merge_request%5Bsource_branch%5D=feat%2Fn_show
+remote: 
+remote: 
+remote: Project 'jiuzhi_project/jiu_zhi' was moved to 'decision_and_planning/jiu_zhi'.
+remote: 
+remote: Please update your Git remote:
+remote: 
+remote:   git remote set-url origin git@10.10.10.100:decision_and_planning/jiu_zhi.git
+remote: 
+remote: 
+To 10.10.10.100:jiuzhi_project/jiu_zhi.git
+   ea1b114..260a641  feat/n_show -> feat/n_show
 
+这时候按照提示，我们运行：
+  git remote set-url origin git@10.10.10.100:decision_and_planning/jiu_zhi.git
+然后再将本地有，远程没有的分支，推送到远程仓库之后，别人应该就能访问了。
 
-
+另一种解决办法就是，先拉取远程分支，将本地的URL映射为新的URL。
+但最好还是直接更新本地的URL，使用上面的提示中的命令。
 
 

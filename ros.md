@@ -50,3 +50,21 @@ $ source devel/setup.bash
 并且对每一个终端都需要进行一样的操作。
 
 
+# rviz
+==xxx.rviz文件
+  是在关闭rviz时，提示你是否保存时，当你点击保存之后产生的文件。同理，当你修改了rviz中的某些话题、视图、面板等，你保存之后，下次打开就会是你上次保存的模样。
+
+==rviz能够自动检测到话题，只要话题的内容是rviz能够解析的，那么就能在rviz中选择订阅。并且显示到rviz中。这种可拓展性还真是设计得很好。
+
+==visualization_msgs/MarkerArray & visualization_msgs/Marker：
+  一种用于显示各种图像集合的显示类型。
+  visualization_msgs/MarkerArray 是 visualization_msgs/Marker 的 vector版本。
+  visualization_msgs/MarkerArray中的属性 markers 的定义如下：
+  std::vector<visualization_msgs::Marker, std::allocator<visualization_msgs::Marker>> visualization_msgs::MarkerArray::markers
+
+  参考代码：
+  http://docs.ros.org/en/diamondback/api/rviz/html/marker__test_8cpp_source.html
+  https://github.com/ipa320/accompany/blob/master/accompany_uva_msg/src/MsgToMarkerArray.cpp
+
+==代码没问题但是就是没显示
+  这种请款可能是你的数据值有问题，比如坐标超出了画面、size太小，看不见等。

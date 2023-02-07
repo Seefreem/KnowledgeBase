@@ -90,6 +90,14 @@ final： 在成员函数后，表示不能重写
       cout << ts.name << endl;     // TestStruct
   }
   需要注意的是，__func__的定义是在类、函数等的声明/定义之后。
+  
+  二、宏定义 https://blog.csdn.net/nyist_zxp/article/details/107890791
+  2.1 __FILE__
+  2.2 __LINE__
+  2.3 #line
+  2.4 __func__ 和 __FUNCTION__
+  2.5 __DATE__
+  2.6 __TIME__
 
 ==_Pragma操作符:
   有时候为了防止一个文件被重复引用，导致问题，我们往往声明这个文件只能被包含一次。
@@ -386,6 +394,15 @@ final： 在成员函数后，表示不能重写
   我很好奇，为什么不直接在参数所在位置定义一个变量，并且传参：
   Func([new] class1(arg1, arg2));
 
+==匿名对象
+  除了常规的定义对象的方法：
+  AnonymousObject ano = AnonymousObject(3); // 调用的是构造函数，而不是复制构造函数
+  AnonymousObject ano(3);
+  还有构造匿名对象的方法：
+  AnonymousObject(2);
+  这样构造出来的对象属于auto类型，生命周期只在这个作用域中。匿名对象的常见用法就是作为函数参数。
+  但是它可以用于定义“用后即焚”的变量。这种方式可以被用于写日志对象的场景。
+
 ==内联命名空间：
   情景：在一些情况下，我们想要将一个命令名空间中的代码拆分成几个独立的代码，但是又不能移出这个命名空间。比如不同版本的库文件。
        这个时候就可以使用命名空间来分割不同版本的代码。但是访问代码的时候就需要加上版本号相关的命名空间的名字。增加了代码量。
@@ -490,6 +507,9 @@ void split(const std::string& srcStr, std::vector<std::string>& targetStr, const
     while(std::getline(sin, temp, delim))
         targetStr.push_back(temp);
 } 
+其他分割方式：
+https://developer.aliyun.com/article/75575#:~:text=%E5%8E%9F%E5%9E%8B%EF%BC%9A%20char%20*strtok(char,%E4%B8%AA%E8%A2%AB%E5%88%86%E5%89%B2%E7%9A%84%E4%B8%B2%E3%80%82
+
 
 # STL
 C++ STL（标准模板库）是一套功能强大的 C++ 模板类，提供了通用的模板类和函数，
@@ -623,6 +643,27 @@ cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
     }
     return 0;
   }
+  其他：<algorithm>
+  有时候使用index会导致数组越界。那么一种替代方案是：std::find_if():
+    #include <iostream>
+    #include <algorithm>
+    #include <vector>
+    #include <iterator>
+    
+    int main()
+    {
+        std::vector<int> v{1, 2, 3, 4};
+        int n1 = 3;
+        int n2 = 5;
+        auto is_even = [](int i){ /*Other processes*/ return i%2 == 0; };
+    
+        auto result3 = std::find_if(begin(v), end(v), is_even);
+    
+        (result3 != std::end(v))
+            ? std::cout << "v contains an even number: " << *result3 << '\n'
+            : std::cout << "v does not contain even numbers\n";
+    }
+
 ### deque
 https://www.cainiaojc.com/cpp/cpp-deque.html
 

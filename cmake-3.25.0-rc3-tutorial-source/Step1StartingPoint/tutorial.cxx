@@ -23,6 +23,9 @@ int main(int argc, char* argv[])
   // 字符串转数字：atof(argv[1])、std::stod(argv[1])
   const double inputValue = std::stod(argv[1]);
 
+  // 数值类型转字符串：
+  // std::to_string()
+
   // calculate square root
   const double outputValue = sqrt(inputValue);
   std::cout << "The square root of " << inputValue << " is " << outputValue
