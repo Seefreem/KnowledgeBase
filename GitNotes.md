@@ -291,4 +291,6 @@ To 10.10.10.100:jiuzhi_project/jiu_zhi.git
 另一种解决办法就是，先拉取远程分支，将本地的URL映射为新的URL。
 但最好还是直接更新本地的URL，使用上面的提示中的命令。
 
-
+# git覆写上一次的提交
+git 覆盖上一次的提交
+  git commit --amend -m "an updated commit message"

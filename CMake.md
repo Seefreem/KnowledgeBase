@@ -14,6 +14,7 @@ https://cmake.org/cmake/help/latest/manual/cmake-variables.7.html
 C++源码中怎么获得CMakeList文件中的宏定义 OR 如何在cmakelists文件中设置debug和release 选择性编译源码文件中的内容 OR
 CMakeList文件传递宏定义到源文件。
 这样做的好处就是，能够选择编译源码中的部分内容，比如日志打印，或者调试代码，以及负责测试的源文件。
+还能配合使用abort，assert等调试代码。在debug的时候打开，在release的时候关闭。
 
 用法：
 add_definitions() command requires the -D flag be prepended to each definition. 版本3.15以下的Cmake
