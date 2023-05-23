@@ -28,6 +28,9 @@
   - [const_cast](#const_cast)
 - [标准库](#标准库)
   - [](#)
+- [trouble shooting](#trouble_shooting)
+  - [内存泄漏](#内存泄漏)
+  - [std相关错误](#std相关错误)
 - [其他](#其他)
 
 # cpp-11
@@ -227,20 +230,29 @@ final： 在成员函数后，表示不能重写
 ==虚函数、纯虚函数和重载：
   虚函数是指函数前面添加了 virtual 的函数，虚函数有函数体。
   纯虚函数是指函数前面添加了 virtual 并且没有函数体，在函数末尾加上了"=0"的函数。只是函数声明。
-  重载是指子类中的函数于父类函数的函数原型一样（函数名、参数列表等一样），那么就称之为重载。
-  不仅仅函数具有重载，模板也具有重载——相同的模板名，不同的参数表。
-  重载可以是重载普通的函数，也可以是重载虚函数。对于纯虚函数，则是需要定义函数。
-  
-  定义一个函数为虚函数，不代表函数为不被实现的函数。
-  定义他为虚函数是为了允许用基类的指针来调用子类的这个函数。
-  定义一个函数为纯虚函数，才代表函数没有被实现。
-  定义纯虚函数是为了实现一个接口，起到一个规范的作用，规范继承这个类的程序员必须实现这个函数。
-  换句话说就是，对于有virtual的虚函数，当父类指针被赋值为子类的指针时，这时候调用虚函数，
-  就是调用的子类中重载之后的函数。而不是父类中的同名函数。而普通的重载则是调用的父类中的函数。
+  https://zhuanlan.zhihu.com/p/78125970
+重载：
+  (1)具有相同的作用域(即同一个类定义中)；
+  (2)函数名字相同
+  (3)参数类型，顺序 或 数目不同(包括const参数和非const函数)
+  (4)virtual关键字可有可无。
 
-  我的理解：
-  重载是为了应对不同的参数情况，即函数名一样，但是参数表不一样，返回值可以不一样，访问权限可以不一样。
-  并且重载存在于同一个作用域或者不同的继承登记中。
+覆盖：
+  (1)不同的作用域(非别位于派生类和基类中)；
+  (2)函数名称相同
+  (3)参数列表完全相同；
+  (4)基类函数必须是虚函数。
+// 函数覆盖，函数覆盖发生在虚函数中，即子类只会保存虚函数的一个实例版本，即函数的执行与指针的类型无关
+// 函数名、参数表和修饰符完全一样的函数不能出现在同一个作用域中，出现在父子类中时，有virtual就是覆盖，没有则为隐藏。
+// 覆盖和隐藏的区别在于函数有几个实例。覆盖只有一个实例，隐藏则有多个实例。
+
+隐藏：
+  (1) 派生类的函数与基类的函数同名，但是参数列表有所差异。
+      此时，不论有无virtual关键字，基类的函数在派生类中将被隐藏。(注意别与重载混合)
+  (2)派生类的函数与基类的函数同名，参数列表也相同，但是基类函数没有virtual关键字。
+      此时，基类的函数在派生类中将被隐藏。(注意别与覆盖混合)
+// 函数隐藏，子类与父类之间的函数差别可以通过类型强转变为一致，函数存在多个实例版本，具体执行哪个取决于指针的类型。
+// 函数隐藏，子类与父类之间的函数的函数名、参数表和修饰完全一样，函数存在多个实例版本，具体执行哪个取决于指针的类型。
 
   重写则是完全一样的函数声明（函数名和参数列表）。
 
@@ -594,6 +606,10 @@ https://zh.cppreference.com/w/cpp/header/array
 https://www.runoob.com/w3cnote/cpp-vector-container-analysis.html
 
 cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
+注意：
+resize()和clear()都不会导致数组实际占用的内存减少。
+Leaves the capacity() of the vector unchanged (note: the standard's restriction on the changes to capacity is in the specification of vector::reserve, see [1])
+Vector capacity is never reduced when resizing to smaller size because that would invalidate all iterators, rather than only the ones that would be invalidated by the equivalent sequence of pop_back() calls.
 
 ==初始化例子：
   vector<int> vec1;        //默认初始化，vec1为空
@@ -663,7 +679,55 @@ cheeting-shit：https://blog.csdn.net/u014465639/article/details/70241850
             ? std::cout << "v contains an even number: " << *result3 << '\n'
             : std::cout << "v does not contain even numbers\n";
     }
-
+== emplace_back()和push_back()的区别
+两者在直接传入模板元素对象时并没有区别，只是在传入时需要创建模板元素对象的情况下才有区别。
+```cpp
+#include <vector> 
+#include <iostream> 
+using namespace std;
+class testDemo {
+public:
+    testDemo(int num):num(num){
+        std::cout << "调用构造函数" << endl;
+    }
+    testDemo(const testDemo& other) :num(other.num) {
+        std::cout << "调用拷贝构造函数" << endl;
+    }
+    testDemo(testDemo&& other) :num(other.num) {
+        std::cout << "调用移动构造函数" << endl;
+    }
+private:
+    int num;
+};
+int main() {
+    cout << "emplace_back:" << endl;
+    std::vector<testDemo> demo1;
+    demo1.emplace_back(2);  
+    cout << "push_back:" << endl;
+    std::vector<testDemo> demo2;
+    demo2.push_back(2);
+    // emplace_back:
+    // 调用构造函数
+    // push_back:
+    // 调用构造函数
+    // 调用移动构造函数
+    
+    cout << "emplace_back 2:" << endl;
+    std::vector<testDemo> demo3;
+    testDemo demo_element_1(2);
+    demo3.emplace_back(demo_element_1);  
+    cout << "push_back 2:" << endl;
+    std::vector<testDemo> demo4;
+    testDemo demo_element_2(3);
+    demo4.push_back(demo_element_2);
+    // emplace_back 2:
+    // 调用构造函数
+    // 调用拷贝构造函数
+    // push_back 2:
+    // 调用构造函数
+    // 调用拷贝构造函数 
+}
+```
 ### deque
 https://www.cainiaojc.com/cpp/cpp-deque.html
 
@@ -763,6 +827,8 @@ https://www.apiref.com/cpp-zh/cpp/algorithm.html
   constexpr InputIt find_if(InputIt first, InputIt last, UnaryPredicate p)
   // 根据判断函数，查找第一个使得判断函数返回值为false的元素，并返回指针
   constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate q)
+
+  当容器为空的时候，肯定是找不到，此时的返回值也是 .end()
 
   案例：
   std::vector<int> v{1, 2, 3, 4};
@@ -1022,8 +1088,257 @@ In short:
 来源：简书
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
+# C++代码可视化
+## 用doxygen生成C++代码UML类图
+参考：https://www.zhihu.com/question/31687711
+
+安装：
+  sudo apt install graphviz  # 用于生成代码关系图 
+  sudo apt install doxygen
+
+使用：
+$ cd CODE_DIR
+$ doxygen -g Doxygen.config  # 生成配置文件 
+$ vi Doxygen.config          # 修改配置文件
+  RECURSIVE              = YES 
+$ doxygen Doxygen.config     # 根据代码生成文档
+生成的文档在html目录下。
+
+随便打开一个html文件就可以开始浏览了。
+
+## 用Doxygen+GraphViz生成C/C++函数调用图
+https://mmdjiji.com/2021/10/2701/
+
+使用方法
+先打开项目路径，使用下面命令初始化配置文件：
+$ doxygen -g doxyfile
+需要生成函数调用关系图，需要对 doxyfile 的以下几个配置项进行修改：
+```txt
+EXTRACT_ALL = YES
+EXTRACT_PRIVATE = YES
+EXTRACT_PACKAGE = YES
+EXTRACT_STATIC = YES
+EXTRACT_LOCAL_METHODS = YES
+CALL_GRAPH = YES
+CALLER_GRAPH = YES
+然后使用下面命令生成文档：
+```
+$ doxygen Doxygen.config
+
 
 # 标准库
+
+# trouble shooting
+## 内存泄漏
+== 对容器进行 memset 操作导致内存泄漏：
+    std::vector<int> vec;
+    std::list<float> list;
+    std::cout << "sizeof(vec): " << sizeof(vec) << std::endl;
+    std::cout << "sizeof(list): " << sizeof(list) << std::endl;
+    
+    for (int i = 0; i < 100; ++i) {
+        vec.push_back(i);
+        list.push_back(i);
+    }
+    std::cout << "sizeof(vec): " << sizeof(vec) << std::endl;
+    std::cout << "sizeof(list): " << sizeof(list) << std::endl;
+    memset(&vec, 0, sizeof(vec));
+    memset(&list, 0, sizeof(list));
+    std::cout << "sizeof(vec): " << sizeof(vec) << std::endl;
+    std::cout << "sizeof(list): " << sizeof(list) << std::endl;
+    因为 sizeof 并不会计算指针所指区域的内存大小， memset 也不会处理指针所指区域的内存。所以这会导致内存泄露。
+    memset 是处理连续内存的函数。
+
+## std相关错误
+== 'std::bad_alloc'
+  当对容器赋值时，若角标从大到小，那么就会出现'std::bad_alloc'错误。例如：
+  global_path.assign(temp_traj.begin() + start_nearest_id, temp_traj.begin() + end_nearest_id);
+  当 temp_traj.begin() + start_nearest_id 大于 temp_traj.begin() + end_nearest_id 时，就会 bad_alloc。
+
+== 'std::out_of_range'
+  就是数组访问越界了。一般是通过 .at(index) 函数越界访问。
+
+== 'std::length_error'
+  insert函数的起始迭代器大于终止迭代器时报的错误。如：
+  global_path.insert(global_path.end(), temp_traj.begin() + gap, temp_traj.end());
+  当 temp_traj.begin() + gap 大于 temp_traj.end() 时，会length_error。
+
+== erase的坑：
+不能将end() 的返回值传递给 erase，那样会产生意想不到的错误。比如直接清空整个容器。
+适用的容器类型：
+std::vector, std::list, std::deque, std::map, std::set等。
+对容器使用erase时记得查阅一下手册。
+测试代码：
+```cpp
+// 测试erase函数的参数end()时，erase的动作：
+void Erase() {
+    std::vector<int> vec{1, 2, 3, 4, 5};
+    auto print = [&vec]() {
+        for (auto& ite : vec) {
+            std::cout << ite << std::endl;
+        }
+        std::cout << std::endl;
+    };
+    print();
+    vec.erase(std::find(vec.begin(), vec.end(), 1));
+    print();
+    // 这个操作之后向量将被清空
+    // vec.erase(vec.end());
+    vec.erase(std::find(vec.begin(), vec.end(), 10));
+    print();
+    // 官网的解释是：
+    // The iterator pos must be valid and dereferenceable. 
+    // Thus the end() iterator (which is valid, but is not dereferenceable) cannot be used as a value for pos.
+}
+```
+
+## CPU占用暴涨
+case 1：增加某个功能之后，导致CPU占用率在特定条件下会迅速增长。但是每个循环都是限制了最快频率的。
+  原因：有不断扩大的容器，并且存在遍历处理容器元素的代码，从而导致每个时间片内的计算量增加。
+    解决办法：每个周期内清空容器，不要让容器元素累计。
+
+case 2：算法复杂度太大，当需要计算的数据突然增大时，就会导致CPU占用高，并且线程超时。比如之前传入的地图变大时，
+  由于算法复杂度是O(n^3)，从而计算量一下子就变得非常大。
+
+case 3：导致了死循环。
+
+## 编译问题
+==在C++中使用using时 报错 error:  does not name a type
+basic_types.h:200:25: error: ‘Eigen’ does not name a type
+ using FootprintPoints = Eigen::Matrix<double, 4, 2>;
+原因：在使用“using FootprintPoints = Eigen::Matrix<double, 4, 2>;” 这句代码之前
+没有定义Eigen，也就是没有引入头文件。
+
+==用CMake编译多线程代码的时候，出现下列错误提示：
+undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+但是编译进度是100%，此时就是代码编译能通过，但是链接不能通过。
+这时候往往是没有找到链接的对象。
+所以要在CMakeLists.txt文件中指定：
+project(Demo)
+find_package(Threads) # 找到多线程库
+和 
+target_link_libraries(Demo ${CMAKE_THREAD_LIBS_INIT}) # 链接多线程库
+
+## std::thread 报错
+错误提示：
+```shell
+/usr/include/c++/7/thread:240:2: error: no matching function for call to ‘std::thread::_Invoker<std::tuple<void (*)(int, int, A&), int, int, A> >::_M_invoke(std::thread::_Invoker<std::tuple<void (*)(int, int, A&), int, int, A> >::_Indices)’
+  operator()()
+
+/usr/include/c++/7/thread:233:29: error: no matching function for call to ‘__invoke(std::__tuple_element_t<0, std::tuple<void (*)(int, int, A&), int, int, A> >, std::__tuple_element_t<1, std::tuple<void (*)(int, int, A&), int, int, A> >, std::__tuple_element_t<2, std::tuple<void (*)(int, int, A&), int, int, A> >, std::__tuple_element_t<3, std::tuple<void (*)(int, int, A&), int, int, A> >)’
+    -> decltype(std::__invoke(_S_declval<_Ind>()...))
+
+```
+
+报错的原因是，找不到对应的构造函数。在通过：
+std::thread t1(increase_proxy, 3000, 1, &a); 创建对象的时候，不能传递自定义类型/类的引用。而应该改为指针。
+
+
+
+# 多线程
+
+## mutex互斥的是什么？mutex锁的是什么？
+多线程安全的前提是将并发/并行改为串行。mutex即将并发/并行互斥，从而避免并发/并行。
+1 mutex互斥的是什么？
+  a 多线程 —— 验证：
+    正：两个完全不一样的线程（不执行同一片代码，不操作同一个变量，仅操作同一个mutex）。
+       一个频率快，一个频率慢，都对同一个互斥锁操作。看快线程是否会等待慢线程。
+    反：
+    结果：mutex互斥的是代码块，不是变量，也不是内存空间，更不是整个线程。
+  b 代码块 —— 否
+  c 变量 —— 否
+2 多个互斥锁存在的时候它们是完全等效的吗？
+  a 等效：实验：写两个mutex变量。分别放入不同的线程。
+    结果：两个线程独立运行。
+  b 不等效果
+3 应该如何正确的加锁和开锁/释放？
+
+结论：
+1 首先互斥量本身并不互斥变量、类、内存块、作用域。互斥量类似于一个队列，互斥量将加锁和开锁之间的代码块加入到这个队列中。
+从而使得用锁互斥的代码块能够按照串行的方式执行。
+2 因此，不同的互斥量代表着不同的队列。不同的互斥量互斥的代码块相互之间没有影响。
+3 互斥量的使用方式是：用一个互斥量代表一个变量或者一些变量的互斥操作。在对这些变量进行操作的时候，应该使用对应的互斥量。
+对于在同一个结构中，互相之间没有影响的变量，应该使用不同的互斥量。
+
+互斥量并不保护任何东西，互斥量只是让锁住的代码块互斥执行。因此这些代码块中对数据的读写就变成了互斥的了。
+
+测试代码：
+```cpp
+// 互斥锁mutex
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <mutex>
+#include <chrono>
+#include <stdexcept>
+#include <cstdlib>
+class A {
+public:
+    int counter = 0;
+    std::mutex mtx;  
+    std::mutex mtx2;  
+    
+};
+
+static void increase_proxy(int time, int id, A* a) {
+    for (int i = 0; i < time; i++) {
+        std::cout << "\nBefore lock " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        a->mtx.lock();
+        std::cout << "In lock. id " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(5123));
+        a->counter++;
+        std::cout << "Out lock. id " << id << ". counter:" << a->counter << std::endl;
+        a->mtx.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+static void random_proxy(int time, int id, A* a) {
+    for (int i = 0; i < time; i++) {
+        std::cout << "\nBefore lock " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(3));
+        a->mtx.lock();
+        std::cout << "In lock. id " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::cout << "Out lock. id " << id << ". counter:" << a->counter << std::endl;
+        a->mtx.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+static void random2_proxy(int time, int id, A* a) {
+    for (int i = 0; i < time; i++) {
+        std::cout << "\nBefore lock " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        a->mtx2.lock();
+        std::cout << "In lock. id " << id << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::cout << "Out lock. id " << id << ". counter:" << a->counter << std::endl;
+        a->mtx2.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+int main(int argc, char** argv) {
+    A a;
+    std::thread t1(increase_proxy, 3000, 1, &a);
+    std::thread t2(random_proxy, 3000, 2, &a);
+    std::thread t3(random2_proxy, 3000, 3, &a);
+    t1.join();
+    t2.join();
+    t3.join();
+    return 0;
+}
+```
+
+# C++非阻塞读取用户输入
+这里需要了解的是linux poll函数的使用
+https://blog.csdn.net/zhouzhenhe2008/article/details/75807720
+https://zhiqiang.org/coding/noblock-input.html 
+
+
 # 其他
 注意函数的返回值不能是函数内的变量的引用，因为局部变量在退出之后会被释放掉。
 就算是容器对象也不行。但是可以是智能指针的引用。前提是，你得定义智能指针。
@@ -1033,5 +1348,7 @@ In short:
       return splitedStr;
   } 
 一个保险的建议是，将返回值当做引用参数传进去。这样就会减小赋值开销，也能避免申请内存。
+
+
 
 

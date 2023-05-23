@@ -19,6 +19,7 @@ easylogging++ 是一个开源的日志工具
                             "${PROJECT_BINARY_DIR}"
                             "${PROJECT_SOURCE_DIR}/logger"
                             )
+
 关于easylogging的代码怎么编写，就参考下面的“2 作为源文件”。
 
 ==2 作为源文件
@@ -28,16 +29,25 @@ easylogging++ 是一个开源的日志工具
 1 如果需要多线程安全，则在头文件 easylogging++.h 中 定义：#define ELPP_THREAD_SAFE    // enable multi-thread-safty
 2 在主函数所在的文件中，在最后一个include语句之后：执行宏： INITIALIZE_EASYLOGGINGPP
 3 在主函数体中，开头部分运行：
+```cpp
     SETUP_DEFAULT_EASYLOGGINGPP("src/nodes/n_v_decision/log_config/decision.conf");
+```
     宏的定义如下：
-    #define SETUP_DEFAULT_EASYLOGGINGPP(config_file) {                \
-    el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck); \
-    el::Configurations conf(config_file);                          \
-    el::Loggers::reconfigureLogger("default", conf);               \
-    }  
+ ```cpp
+    // 这个可以作为公用的预定义宏
+    #ifndef SETUP_DEFAULT_EASYLOGGINGPP
+    #define SETUP_DEFAULT_EASYLOGGINGPP(config_file, RolloutHandler) {  \
+    el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);   \
+    el::Configurations conf(config_file);                            \
+    el::Loggers::reconfigureLogger("default", conf);                 \
+    el::Helpers::installPreRollOutCallback(RolloutHandler);          \
+    } 
+    #endif 
+ ``` 
     这里加载了一个配置文件src/nodes/n_v_decision/log_config/decision.conf。
     文件的路径是从运行程序的目录开始的。
 4 配置文件：
+```conf
     * GLOBAL:  
         ENABLED                 =   true  
         TO_FILE                 =   true  
@@ -69,12 +79,16 @@ easylogging++ 是一个开源的日志工具
         
     # * VERBOSE:  
     #     ENABLED                 =   false  
+```
+## 输出格式/配置文件设置
+https://www.cnblogs.com/warmlight/p/14156235.html
 
 # easylogging 的性能分析：
 easylogging的日志性能比std::cout流式传输的低，原因是easylogging内部的处理逻辑会更多，
 并且每次写日志的时候都会创建日志对象以及其他的操作，兑现的创建会消耗比较多的时间。
 
 比如简单的basic log的展开过程如下：
+```cpp
     #define LOG(LEVEL) CLOG(LEVEL, ELPP_CURR_FILE_LOGGER_ID)
     
     #define CLOG(LEVEL, ...)\
@@ -88,7 +102,7 @@ easylogging的日志性能比std::cout流式传输的低，原因是easylogging�
     #define ELPP_WRITE_LOG(writer, level, dispatchAction, ...) \
     writer(level, __FILE__, __LINE__, ELPP_FUNC, dispatchAction).construct(el_getVALength(__VA_ARGS__), __VA_ARGS__)
     // 所以实际上就是创建了一个匿名的 writer 对象，然后调用 construct 函数写入文件。
-
+```
 # easylogging 的 条件输出是怎么实现的？
     就是一个简单的条件语句
     if (condition)
@@ -119,3 +133,49 @@ easylogging的日志性能比std::cout流式传输的低，原因是easylogging�
 ## 如何对文件进行操作？
 
 # 如何实现自己的简单版本的日志系统呢？
+
+# Performance Tracking
+
+All you need to do is use one of two macros from where you want to start tracking.
+
+TIMED_FUNC(obj-name)
+TIMED_SCOPE(obj-name, block-name)
+TIMED_BLOCK(obj-name, block-name)
+An example that just uses usleep
+```cpp
+void performHeavyTask(int iter) {
+   TIMED_FUNC(timerObj);
+   // Some initializations
+   // Some more heavy tasks
+   usleep(5000);
+   while (iter-- > 0) {
+       TIMED_SCOPE(timerBlkObj, "heavy-iter");
+       // Perform some heavy task in each iter
+       usleep(10000);
+   }
+}
+```
+
+# 日志滚动（rorate/rotating/保留历史日志）
+因为easylogging默认只保存最近的一个日志文件。也就是当日志大小到达最大的限制时，会清空文件内容，重新写入。文件名不会变。
+因此需要手动保存历史日志。
+回调函数：
+```cpp
+// 备份日志的回调函数，这里的filename就是配置文件中的FILENAME的值
+void RolloutHandler(const char* filename, std::size_t size) {
+  time_t t = time(NULL);
+  char time_str[64] = {0};
+  // 给日志加上时间后缀 
+  strftime(time_str, sizeof(time_str) - 1, "_%m_%d_%H_%M", localtime(&t)); 
+  std::string str(filename);
+  std::stringstream ss;
+  ss << "mv " << filename << " " 
+     << str.substr(0, str.length() - 4)/*去掉“.log”后缀*/ << time_str << ".log";
+  std::system(ss.str().c_str());
+}
+```
+注册回调函数：
+```cpp
+el::Helpers::installPreRollOutCallback(RolloutHandler);
+```
+通过预定义宏

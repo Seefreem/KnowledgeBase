@@ -32,3 +32,22 @@ int main(int argc, char* argv[])
             << std::endl;
   return 0;
 }
+/*
+补充：
+字符串转数字：
+C语言转换形式(转为int):
+  ...
+  std::string str;
+  int i = atoi(str.c_str());
+  ...
+
+C++转换形式(C++11)(转为int):
+  ...
+  std::string str;
+  int i = std::stoi(str);
+  ...
+
+其他还有：
+stol(long), stof(float), stod(double) 等.
+
+*/

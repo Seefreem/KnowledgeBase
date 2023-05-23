@@ -1805,7 +1805,7 @@ shell脚本：
   使用top命令时，建议使用：
   `top -n 1 -b | grep -E ${PIDS[i]}| grep -v 'grep'  >> ${LOG_FILES[i]}`
   注意加上-b，不然输出的内容包含了格式字符，在log文件中显示为乱码。
-
+```sh
     #!/bin/bash
     # 进程的名字，支持一个名字对应多个PID。
     PROCESSES=("n_v_decision/n_v_decision" 
@@ -1864,7 +1864,6 @@ shell脚本：
     # rm "$LOG"
     # fi
     # echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND" >> "$LOG" 
-
     # while :
     # do
     #     for pid in ${PIDS[@]}
@@ -1874,3 +1873,4 @@ shell脚本：
     #     sleep 5
     # done
     # ########## 将所有的日志信息放到一个文件中 END ###########
+```

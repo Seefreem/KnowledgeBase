@@ -50,3 +50,49 @@ https://stackoverflow.com/questions/61250087/backward-compatible-add-compile-def
 https://cmake.org/cmake/help/v3.10/command/add_definitions.html
 https://cmake.org/cmake/help/v3.12/command/add_compile_definitions.html
 https://cmake.org/cmake/help/latest/command/target_compile_definitions.html
+
+# 区分编译系统，区分系统，系统特异化编译
+方式1：
+```c
+if ("x86_64" STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+  message("Build on x86_64 platform")
+else ()
+  message("Build on ARM platform")
+endif ()
+```
+方式2：
+```c
+MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
+ 
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	MESSAGE(STATUS "current platform: Linux ")
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+	MESSAGE(STATUS "current platform: Windows")
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+	MESSAGE(STATUS "current platform: FreeBSD")
+ELSE ()
+	MESSAGE(STATUS "other platform: ${CMAKE_SYSTEM_NAME}")
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
+ 
+MESSAGE(STSTUS "###################################")
+```
+方式3：
+```c
+IF (WIN32)
+	MESSAGE(STATUS "Now is windows")
+ELSEIF (APPLE)
+	MESSAGE(STATUS "Now is Apple systens.")
+ELSEIF (UNIX)
+	MESSAGE(STATUS "Now is UNIX-like OS's.")
+ENDIF ()
+```
+
+# No such file or directory
+描述：在使用catkkin_make 编译ros项目的时候，
+CMakeLists.txt文件配置感觉没问题，但是编译的时候总是报No such file or directory（找不到msg文件）
+实际上是因为编译的时候启动了多线程编译，但是这个程序的依赖又在这个程序编译之后编译。
+这就导致找不到file。
+解决办法就是使用下面的函数添加依赖：
+add_dependencies() 这个函数定义了依赖，从而定义了部分编译顺序。
+
+可以参考：https://blog.csdn.net/KingOfMyHeart/article/details/112983922

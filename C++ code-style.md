@@ -235,7 +235,20 @@ using XY = struct _XY {
     }
 };
 ```
-
+重载类的运算符的时候，需要注意给运算符函数加上const限定符，因为STL中一般都是对const元素进行操作的。不然就会报下面的错误：
+error: no match for ‘operator<’ (operand types are ‘const A’ and ‘const A’)
+error: no match for ‘operator=’ (operand types are ‘const A’ and ‘const A’)
+```cpp
+bool operator<(const A& rhs) const // 注意添加这个const
+{
+    return ((m_a < rhs.m_a) ||
+            ((m_a == rhs.m_a) && (m_b < rhs.m_b))
+            );
+    /* alternatively:
+    return std::tie(m_a, m_b) < std::tie(rhs.m_a, rhs.m_b);
+    */
+}
+```
 > **Attention:**
 > 在C++中，结构体除了一般需要起别名来避免实例化时要先声明`struct`关键字之外，与`class`几乎没有区别。而对于C++编程者而言，结构体和类给人的印象不同。前者通常代表对一个复合数据结构的定义，而后者通常代表了对一个复杂系统的定义。为避免含义混乱，上文的第3条将结构体的使用限制在对复合数据结构的定义和简单使用中。
 
