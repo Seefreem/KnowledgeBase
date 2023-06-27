@@ -15,3 +15,22 @@ https://www.cnblogs.com/Leo_wl/p/11071714.html#:~:text=%E8%AE%BE%E7%BD%AE%E6%88%
 https://chegva.com/3375.html
 
 gitlab 的 project页面-> settings -> general -> advanced 
+
+
+# 发布相关信息
+Changelog：
+https://keepachangelog.com/zh-CN/0.3.0/
+
+readme：
+https://www.makeareadme.com/
+
+release：
+http://10.10.10.100/help/user/project/releases/index
+https://juejin.cn/post/7220227713129840699
+
+
+# gitlab 翻译
+极狐：https://docs.gitlab.cn/jh/user/project/releases/
+
+
+

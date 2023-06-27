@@ -1874,3 +1874,16 @@ shell脚本：
     # done
     # ########## 将所有的日志信息放到一个文件中 END ###########
 ```
+
+# linux系统之间传输文件的方法
+1 启动python server：
+在目录中运行 python -m http.server 
+然后终端会输出端口号。
+在新的计算机上输出服务器额IP:端口号，就能看到服务器上的目录了
+
+2 使用ssh
+
+3 使用scp：
+scp source_file target_server_name@IP:dir
+
+scp source_file ubuntu@10.10.8.10:/home/ubuntu

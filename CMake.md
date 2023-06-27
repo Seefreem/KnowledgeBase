@@ -96,3 +96,44 @@ CMakeLists.txt文件配置感觉没问题，但是编译的时候总是报No suc
 add_dependencies() 这个函数定义了依赖，从而定义了部分编译顺序。
 
 可以参考：https://blog.csdn.net/KingOfMyHeart/article/details/112983922
+
+
+# 如何在Cmake中执行shell命令
+在CMake中执行Shell命令，可以使用execute_process指令。
+
+execute_process指令的语法如下：
+```t
+execute_process(COMMAND command [args...]
+                [INPUT_FILE filename] [TIMEOUT timeout_seconds]
+                [RESULT_VARIABLE variable]
+                [OUTPUT_VARIABLE variable] [ERROR_VARIABLE variable]
+                [OUTPUT_QUIET] [ERROR_QUIET]
+                [WORKING_DIRECTORY dir]
+                [LANGUAGES languages] [ENVIRONMENT env-vars...])
+```
+其中，最基本的参数是COMMAND，它指定要执行的命令及其参数。例如，执行ls -l命令可以写成：
+```t
+execute_process(COMMAND ls -l)
+```
+此外，该指令还有很多选项，例如：
+
+INPUT_FILE：指定一个文本文件作为标准输入。
+TIMEOUT：指定命令执行的超时时间。
+RESULT_VARIABLE：将命令的返回值保存到变量中。
+OUTPUT_VARIABLE和ERROR_VARIABLE：将命令的标准输出和标准错误输出保存到变量中。
+OUTPUT_QUIET和ERROR_QUIET：指定是否需要输出命令的标准输出和标准错误输出。
+WORKING_DIRECTORY：指定命令执行的工作目录。
+LANGUAGES：指定命令所涉及到的语言，用于指定环境变量。
+ENVIRONMENT：指定要设置的环境变量。
+例如，执行echo "Hello, world!"命令，并将其输出保存到变量MSG中，可以写成：
+```t
+
+execute_process(COMMAND echo "Hello, world!"
+                OUTPUT_VARIABLE MSG)
+message("输出: ${MSG}")
+```
+
+注意，在使用诸如ls等需要指定参数的命令时，建议将参数分开写，而非整体写成一个字符串，避免参数被误解析。
+
+执行Shell命令时，也需要特别注意命令执行的环境、操作系统和Shell环境等因素对执行结果的影响。
+
