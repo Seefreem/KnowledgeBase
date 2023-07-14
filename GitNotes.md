@@ -257,6 +257,18 @@ https://blog.csdn.net/weixin_47266712/article/details/124760778
   ssh-keygen -f "/home/seelur/.ssh/known_hosts" -R "github.com"
   ssh -T git@github.com，输入yes，链接成功！
 
+===================
+问题描述：
+执行 git push 时，报错：
+fatal: unable to access 'https://github.com/Seefreem/KnowledgeBase.git/': Failed to connect to github.com port 443 after 21067 ms: Couldn't connect to server
+
+解决办法：
+ git remote add origin git@github.com:Seefreem/KnowledgeBase.git
+然后 
+ git push 
+
+
+
 # 嵌套git
 嵌套git的情况下，上层git可能无法管理子目录下的git仓库中的文件。
 要管理子目录下的文件，就需要删除子目录下的.git，并且通过下面的命令更新上层git的缓存。
