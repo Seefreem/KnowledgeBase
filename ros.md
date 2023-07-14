@@ -521,4 +521,18 @@ export ROS_MASTER_URI=http://192.168.1.100:11311
 
 因此，<arg> 和 <param> 的目的是相同的，即提供一种灵活的机制来传递或设置命令行参数和节点参数，但它们的用途略有不同，并且可用于不同的应用程序场景。
 
-# 
+# 节点命名空间
+rosmaster和ros node都可以有命名空间。
+
+对于多机协作或者云-端协同的情况，我们希望多个机器之间能够通过ROS的话题进行通信，但是存在一个网络传输延迟的问题。
+因此，如果ROSmaster不在本机上运行，那么本机接收到任何topic话题都很慢。
+
+于是ROSmaster的命名空间就发挥作用了，简单来说就是，在每一台机器上都启动一个ROSmaster，每个ROSmaster都会有一个URI，在运行roscore的时候就会打印到终端。本机上的节点可以选择本机的URI进行链接，从而本机上的节点之间的信息传输就很快。然后可以建立单独的节点去与其他机器的ROSmaster进行通信（中间件）。
+
+另外，还有一种情况是，在搭建仿真平台的时候，我们可能想要在一套机器上运行一份代码的多个实例，从而模拟多台机器，那么这时候由于每台模拟机器都使用同样的代码，所以发布的消息也是一样的，这就导致了信息混乱。为了避免这种问题，节点的命名空间就起作用了。
+节点在发布和订阅的时候都可以指定命名空间(同时还需要指定端口号和ID)：
+```
+gnome-terminal --title="truck_9" --tab -x bash -c -- "
+source devel/setup.bash
+rosrun node_vehicle_decision node_vehicle_decision _local_port:=8882 _local_id:=1008 __ns:=/truck_9 truck_9; exec bash
+```

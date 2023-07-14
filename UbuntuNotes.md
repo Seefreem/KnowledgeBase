@@ -127,6 +127,9 @@ This covers a wide assortment of quick references for the terminal/command-line.
     - [vscode python interpreter](#vscode-python-interpreter)
 - [deeplearning](#deep-learning) 
     - [cuda](#cuda)
+- [tool apps](tool-apps)
+    - [remote connection](#remote-connection)
+    - [mp4](#mp4)
 
 # Common Commands
 ***
@@ -430,6 +433,8 @@ df -B MB    (In Megabtyes, KB for Kilobytes, GB for Gigabytes)
 ```
 top
 htop  # If you installed it
+
+jtop # jetson-stats is a package for monitoring and control your NVIDIA Jetson [Orin, Xavier, Nano, TX] series.
 ```
 
 ### IP Address
@@ -1678,6 +1683,19 @@ OR use command below to see if the NVIDIA Persistence Daemon is active:
 '''
 systemctl status nvidia-persistenced
 '''
+
+
+# tool apps
+## remote connection
+
+  远程连接的工具有很多，其中adb、nomachine、mobaxterm都是可以选择的工具。
+  adb用于连接安卓系统。
+  nomachine、mobaxterm 则可以用于连接其他linux操作系统。
+
+## mp4
+
+在Ubuntu系统中用Kazam录屏产生的mp4文件在windows中不能播放，需要对文件执行下面的命令才能成功：
+ffmpeg -y -i Kazam_screencast_00001.mp4 -c:v libx264 -c:a aac -strict experimental -tune fastdecode -pix_fmt yuv420p -b:a 192k -ar 48000 5_crossrods.mp4
 
 # 软链接
 ln -s source dist

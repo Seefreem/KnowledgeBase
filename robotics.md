@@ -104,3 +104,12 @@ OBB 即 oriented bounding box（方向包围盒），用来抽象化复杂几何
 
 
 
+# 控制
+
+控制框架：MRAC+MPC、LQR+PID
+可以在simulink中仿真
+基于车辆运动学的模型预测控制MPC（一） 非线性优化
+非线性优化求解器IPOPT
+
+什么是画龙问题？
+VCU？
