@@ -130,6 +130,7 @@ This covers a wide assortment of quick references for the terminal/command-line.
 - [tool apps](tool-apps)
     - [remote connection](#remote-connection)
     - [mp4](#mp4)
+- [environment](#environment)
 
 # Common Commands
 ***
@@ -161,7 +162,51 @@ Apt (Or Aptitude) is the **package manager** for Ubuntu to manage packages.
 > Tip: You can use the `-y` flag in any apt command to skip the `[Y/n]` dialog.
 
 ### Apt Install
+-----------------------------
+参考网址：https://www.cnblogs.com/EasonJim/p/7144017.html 
+一、通过apt-get安装指定版本
 
+apt-get install <<package name>>=<<version>>
+二、查询指定软件有多少个版本
+
+说明：在Linux用这个查询并不能完全的把所有版本都列举出来，因为每个版本都与系统版本和CPU架构有关，比如一个软件支持Ubuntu系统的16.04的CPU架构为amd64的版本只有1.0和1.2，其余都不支持，所以列举时就只有两款。
+
+列举版本列表：
+
+0、通过网站搜索：
+
+https://packages.ubuntu.com/
+
+1
+apt-cache madison <<package name>>
+将列出所有来源的版本。如下输出所示：
+
+apt-cache madison vim
+   vim | 2:7.3.547-1 | http://debian.mirrors.tds.net/debian/ unstable/main amd64 Packages
+   vim | 2:7.3.429-2 | http://debian.mirrors.tds.net/debian/ testing/main amd64 Packages
+   vim | 2:7.3.429-2 | http://http.us.debian.org/debian/ testing/main amd64 Packages
+   vim | 2:7.3.429-2 | http://debian.mirrors.tds.net/debian/ testing/main Sources
+   vim | 2:7.3.547-1 | http://debian.mirrors.tds.net/debian/ unstable/main Sources
+复制代码
+madison是一个apt-cache子命令，可以通过man apt-cache查询更多用法。
+
+2
+* apt-cache policy <<package name>>
+将列出所有来源的版本。信息会比上面详细一点，如下输出所示：
+
+* apt-cache policy gdb 
+gdb:
+  Installed: 7.7.1-0ubuntu5~14.04.2
+  Candidate: 7.7.1-0ubuntu5~14.04.2
+  Version table:
+ *** 7.7.1-0ubuntu5~14.04.2 0
+        500 http://fr.archive.ubuntu.com/ubuntu/ trusty-updates/main amd64 Packages
+        100 /var/lib/dpkg/status
+     7.7-0ubuntu3 0
+        500 http://fr.archive.ubuntu.com/ubuntu/ trusty/main amd64 Packages
+        500 http://archive.ubuntu.com/ubuntu/ trusty/main amd64 Packages
+
+-----------------------------
 You need super user permissions, or `sudo` before the command.
 
 To install packages, let's use an example such as Ruby which should have a list of items.
@@ -1328,6 +1373,10 @@ This is a great utility that makes managing docker easier from a `docker-compose
 docker-compose up
 open http://localhost:3000
 ```
+基本信息：
+
+
+
 
 ### Test Box Run
 This is a sample box to test once you installed docker
@@ -1649,6 +1698,15 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple package_name
 2.永久还原：
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
+查看安装包可选版本的方法，以django包为例子：
+pip install django==
+安装指定版本的包：
+pip install django==1.1.4
+
+卸载 pip 安装的包：
+pip uninstall package_name
+
+
 ### vscode python interpreter
 修改python解释器，先按组合键：
 ```
@@ -1905,3 +1963,34 @@ shell脚本：
 scp source_file target_server_name@IP:dir
 
 scp source_file ubuntu@10.10.8.10:/home/ubuntu
+
+# 在ubuntu上挂载磁盘
+在现在的版本中，默认点击磁盘就能实现挂载。
+只是挂在之后可能磁盘是只读文件，不能写。
+这时候就需要修复一下：
+https://blog.51cto.com/144dotone/2952984
+```text
+  使用mount查看当前挂载的设备，找到属性为ro的，比如我这里为/dev/sdb2
+  使用如下命令修复即可
+  sudo ntfsfix /dev/sdb2
+  出现successfully之后将/dev/sdb2 unmount掉，然后再重新mount即可
+```
+
+# environment
+程序环境问题：
+在编程的时候，或者在跑凯源代码的时候往往会遇到需要安装以前的版本的包的情况。
+这时候就涉及到程序环境问题。
+解决的一般思路是：
+1 在当前环境中尝试运行程序。
+  如果报错，看能否通过简单地修改代码来使程序成功运行。
+  如果如法通过简单地修改代码来修复问题。那就进行第二步。
+2 检查是否缺少程序包，如果是就进行安装。如果不是缺少，而是版本冲突，那就进行第三步。
+3 新建虚拟环境，如anaconda环境，或者docker环境，又或者其他类型的虚拟环境。
+  然后切换到虚拟环境中。
+4 在虚拟环境中安装所需版本的程序包。如果还是找不到需要安装的版本。那就进行第五步。
+5 从源码构建第三方库。搜索包/库的 release记录。或者在开源项目中找到release。或者直接搜索 库 versions/release/github。
+  如果有可以之间安装的二进制文件，那就优先选择二进制文件，如果有编译好直接用的程度，那就选直接用的程序。
+  如果只有源码，那就git clone 源码，然后git checkout <release>，然后根据README.md 进行编译。
+  
+
+切忌不要删除当前的程序包，然后安装某个旧版本的程序包。因为这可能会导致其他的程序无法正常运行。
