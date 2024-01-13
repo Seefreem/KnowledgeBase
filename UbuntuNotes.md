@@ -131,6 +131,7 @@ This covers a wide assortment of quick references for the terminal/command-line.
     - [remote connection](#remote-connection)
     - [mp4](#mp4)
 - [environment](#environment)
+- [swap](#swap)
 
 # Common Commands
 ***
@@ -1994,3 +1995,29 @@ https://blog.51cto.com/144dotone/2952984
   
 
 切忌不要删除当前的程序包，然后安装某个旧版本的程序包。因为这可能会导致其他的程序无法正常运行。
+# swap
+https://timberkito.com/?p=98
+查看swap 空间：
+swapon -s
+
+创建新的swap：
+cd /usr
+ mkdir swap
+ cd swap
+ dd if=/dev/zero of=/usr/swap/swapfile1 bs=32M count=2000
+#bs 为块大小，count为块数 bs=32M 乘以count=2000得到64G。
+将新创建的文件视为swap文件：
+mkswap /usr/swap/swapfile1
+挂在swap文件：
+swapon /usr/swap/swapfile1
+
+设置为永久生效：
+修改/etc/fstab文件
+vim /etc/fstab
+在末行增加以下内容
+/usr/swap/swapfile1 swap swap defaults 0 0
+
+
+
+
+
