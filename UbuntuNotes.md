@@ -1995,6 +1995,12 @@ https://blog.51cto.com/144dotone/2952984
   
 
 切忌不要删除当前的程序包，然后安装某个旧版本的程序包。因为这可能会导致其他的程序无法正常运行。
+
+可能遇到的问题：
+OSError: libcudart.so.12: cannot open shared object file: No such file or directory
+解决办法就是，切换回到conda base，就解决了。似乎conda还是在指定lib方面有点问题。
+
+
 # swap
 https://timberkito.com/?p=98
 查看swap 空间：
