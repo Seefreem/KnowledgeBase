@@ -691,7 +691,7 @@ echo $PATH
 
 vim ~/.profile
 if [ -d "/path/to/your/bin" ] ; then
-  PATH="$PATH:/path/to/your/bin"
+  PATH="/path/to/your/bin:$PATH"  这样写的好处是能保留PATH本身的值，从而避免出现一些问题。将$PATH 放在后面的好处是，让你指定的path的优先级更高。因为你指定的路径中的文件可能是PATH默认值中的文件的替代版本。
 fi
 ```
 
@@ -1742,6 +1742,21 @@ OR use command below to see if the NVIDIA Persistence Daemon is active:
 systemctl status nvidia-persistenced
 '''
 
+多版本cuda/多版本nvcc：
+NVCC详解 - https://zhuanlan.zhihu.com/p/91334380
+简单来说就是 CUDA Toolkit中包含了显卡驱动和NVCC，但是在安装的时候，最好选择不安装显卡驱动。这样就不会导致Ubuntu‘出问题’了。
+安装多个版本的coda toolkit之后，只用修改 /usr/local/cuda 这个软连接（软链接）就好。 可以用 ll 指令查看软连接（软链接）指向的谁。
+
+在安装 cuda toolkit的时候，可移是通过 .run文件安装，并且取消勾选显卡驱动，只安装和nvcc 相关的内容。
+还可以通过 .deb 文件进行安装，只是安装完之后不要继续“Driver installer”那部分就行。
+安装完之后，记得在环境变量中添加：
+```sh
+# add nvcc compiler to path
+export PATH=$PATH:/usr/local/cuda-10.1/bin
+# add cuBLAS, cuSPARSE, cuRAND, cuSOLVER, cuFFT to path
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-10.1/lib64
+```
+这里有多种选择。但最好不要像上面这样直接指定版本，而是先修改 /usr/local/cuda 这个软连接，然后在环境变量中直接使用 /usr/local/cuda。
 
 # tool apps
 ## remote connection
@@ -1755,10 +1770,10 @@ systemctl status nvidia-persistenced
 在Ubuntu系统中用Kazam录屏产生的mp4文件在windows中不能播放，需要对文件执行下面的命令才能成功：
 ffmpeg -y -i Kazam_screencast_00001.mp4 -c:v libx264 -c:a aac -strict experimental -tune fastdecode -pix_fmt yuv420p -b:a 192k -ar 48000 5_crossrods.mp4
 
-# 软链接
+# 软链接 软连接
 ln -s source dist
 source:文件原始地址
-dist：文件想要建立链接的位置
+dist：文件想要建立链接的位置/ 软链接的名字
 
 # 终端命令使用技巧
 ==find命令进阶（二）：对找到的文件执行操作exec

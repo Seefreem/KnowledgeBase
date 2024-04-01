@@ -39,7 +39,17 @@ git config --global user.email "2197036755@qq.com"
 https://blog.csdn.net/weixin_42310154/article/details/118340458
 https://www.jianshu.com/p/dd3be8cb5b90
 
-创建远程仓库的方法：
+多账邮箱，多git配置：
+https://blog.csdn.net/weixin_38874840/article/details/93405811 
+
+# 查看当前仓库的远程仓库连接 & 修改当前仓库的远程仓库连接
+进入本地 Git 仓库根目录下；
+键入： git remote 查看远程仓库名称：origin ； 
+键入：git remote get-url origin 查看远程仓库地址；
+键入：git remote set-url origin git@10.1.22.30:LauncherGroup/Launcher.git  ( 如果未设置ssh-key，此处仓库地址为 http://... 开头)
+原文链接：https://blog.csdn.net/MLQ8087/article/details/81360025
+
+# 创建远程仓库的方法
 1 在网页端用鼠标创建
 2 命令行创建：
 git init .
